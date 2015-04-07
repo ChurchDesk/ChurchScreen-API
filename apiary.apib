@@ -1,0 +1,488 @@
+FORMAT: 1A
+HOST: http://kirkeweb.dk
+
+# ChurchDesk Screen API
+Welcome to the *ChurchDesk Screen API*.
+
+##Allowed HTTPs requests:
+
+- `POST` - To create or update resource
+- `PUT` - To create or update resource
+- `GET` - Get a resource or list of resources
+- `DELETE` - To delete resource
+
+##Description Of Usual Server Responses
+
+- 200 `OK` - the request was successful (some API calls may return 201 instead).
+- 201 `Created` - the request was successful and a resource was created.
+- 204 `No Content` - the request was successful but there is no representation to return (i.e. the response is empty).
+- 400 `Bad Request` - the request could not be understood or was missing required parameters.
+- 401 `Unauthorized` - authentication failed or user doesn't have permissions for requested operation.
+- 403 `Forbidden` - access denied.
+- 404 `Not Found` - resource was not found.
+- 405 `Method Not Allowed` - requested method is not supported for resource.
+- 429 `Too Many Requests` - exceeded KirkeWeb API limits. Pause requests, wait up to one minute, and try again.
+
+##Encoding
+
+All endpoints accept and use UTF-8 encoding
+
+##Dates
+
+All dates will be in ISO-8601 format. Example: `2004-02-12T15:19:21+00:00` (UTC)
+
+# Group Miscellaneous information
+Endpoints that provide extra information about the church
+
+##About the church [/public/about?image_format={image_format}]
+
+##List of attributes:
+
+- name - (string) the name of the church
+- image - (array) url to the image of the church in different types
+- address - (string) field for the address. HTML is allowed in this field
+- description - (string) text decribing the church. HTML is allowed in this field (empty: null)
+- working_hours - (string[html]) working hours of the church. (empty: null)
+- url_to_more_info - (string) url to the page containing more information regarding the church.
+
+### Allowed image format
+- span4_16-9 - Dimentions: 300x169 (px)
+- span5_16-9 - Dimentions: 380x214 (px)
+- squared_80 - Dimentions: 80x80 (px)
+- span9_16-9 - Dimentions: 700x394 (px)
+- 9-16       - Dimentions: 1080x1920 (px)
+
+### Get information [GET]
++ Parameters
+    + image_format (optional, string, `span5_16-9,span4_16-9`) ... String `image_format` might have different multiple format. The default format: span4_16-9.
+    
++ Response 200 (application/json)
+
+        [{
+          "name": "Church name", 
+          "image": [{"span4_16-9" : "http://goo.gl/JLM3TB"}], 
+          "address": "Njaldsgade 21, 4.<br />2300 København S", 
+          "description": "Text about the church", 
+          "working_hours": "<p>Monday: 10am - 5pm</p></br><p>Tuesday: 9am - 4pm</p>",
+          "url_to_more_info": "http://www.mykirke.kw01.net/more_info"
+        }]
+
+
+# Group Gallery
+Endpoint describing the gallery module
+
+##Galleries [/public/gallery]
+List of all galleries.
+
+##List of attributes:
+
+- gid - (int) Gallery ID
+- title - (string) Gallery title
+- thumb_cover_photo - (string) Url to the cover image of the gallery
+
+Images will always be provided in a 16:9 format. We can provide different sizes using this format.
+
++ Model (application/json)
+
+    + Body
+
+            {
+                "gid": "42",
+                "title": "Images of Christmas eve",
+                "thumb_cover_photo": 'http://goo.gl/JLM3TB'
+            },
+            {
+                "gid": "47",
+                "title": "Images of Easter event",
+                "thumb_cover_photo": 'http://goo.gl/JLM3TB'
+            }
+
+### Retrieve all Galleries [GET]
++ Response 200
+
+    [Galleries][]
+
+
+## Gallery [/public/gallery/{gid}]
+A single gallery object.
+
+##List of attributes:
+
+- created - (ISO 8601) Date of gallery creation. Using the date format *ISO 8601*.
+- title - (string) Gallery title
+- images - (array) Array of images, see example for structure.
+
+Images will always be provided in a 16:9 format. We can provide different sizes using this format.
+
++ Parameters
+    + gid (int) ... *gid* of the gallery
+
++ Model (application/json)
+
+    + Body
+
+            {
+                "created": "2004-02-12T15:19:21+00:00",
+                "title": "Images of Christmas eve"
+                "images": {
+                    {'filename': 'church.png', 'thumb_url': 'http://goo.gl/JLM3TB', 'large_url': 'http://goo.gl/JLM3TB'},
+                    {'filename': 'church2.png', 'thumb_url': 'http://goo.gl/JLM3TB', 'large_url': 'http://goo.gl/JLM3TB'},
+                }
+            }
+
+### Retrieve a Single Gallery [GET]
++ Response 200
+
+    [Gallery][]
+    
+# Group Contact
+Endpoint describing the contact page module
+
+##Contact [/public/contact]
+Endpoints that provide contact information about the church
+
+An associative array of contact persons. The persons are grouped in positions, see the example.
+
+##List of attributes:
+
+- name - (string) The users name
+- position - (string) The users position at the church
+- email - (string) The email of the user
+- phone - (array) The array of the phone numbers
+- description - (html) The description of the user
+- profile_image - (url) The image of the user (format 3:4)
+- address - (string) The address of the user.
+
++ Model (application/json)
+
+    + Body
+
+            [
+                {
+                    "type" : "Menighedsrådet",
+                    "contacts" : [
+                        {
+                            "name": "Kasper C. Madsen",
+                            "position": "Menighedsrådsformand",
+                            "email": "KasperCMadsen@noreply.dk",
+                            "phone": ["24841178", "24841111"],
+                            "description": "Kasper M kan kontaktes inden for kirkens åbningstid",
+                            "profile_image": "http://goo.gl/JLM3TB",
+                            "address" : "Bredesvinget 15, Virum 2830, Danmark"
+                        },
+                        {
+                            "name": "Aase V. Koch",
+                            "position": "Næstformand",
+                            "email": "AaseVKoch@noreply.dk",
+                            "phone": ["24841178", "24841111"],
+                            "description": "Aase kan kontaktes inden for kirkens åbningstid",
+                            "profile_image": "http://goo.gl/JLM3TB",
+                            "address" : null
+                        }
+                    ]
+                },
+                {
+                    "type" : "Præster",
+                    "contacts" : [
+                        {
+                            "name": "Rosa O. Mathiasen",
+                            "position": "Domprovst",
+                            "email": "RosaOMathiasen@noreply.dk",
+                            "phone": ["24841178", "24841111"],
+                            "description": "Præsten kontaktes inden for kirkens åbningstid",
+                            "profile_image": "http://goo.gl/JLM3TB",
+                            "address" : null
+                        },
+                        {
+                            "name": "Benjamin A. Jakobsen",
+                            "position": "Sognepræst",
+                            "email": "BenjaminAJakobsen@noreply.dk",
+                            "phone": ["24841178", "24841111"],
+                            "description": "Præsten kan kontaktes inden for kirkens åbningstid",
+                            "profile_image": "http://goo.gl/JLM3TB",
+                            "address" : "Nøjsomhedsvej 19, kgs. Lyngby 2800, Danmark"
+                        }
+                    ]
+                }
+            ]
+
+### Retrieve a Contact object [GET]
++ Response 200
+
+    [Contact][]
+
+# Group Blogs
+Endpoints that provides information regarding blogs
+
+##Blog categories [/public/blogs/categories]
+Listing of all blog categories
+
+## Listing of attributes
+
+- cid - (int) the id of the category
+- name - (string) the name of the category
+
+### List all categories [GET]
++ Response 200 (application/json)
+
+        [{
+            "cid": 1, "name": "Blog category 1" 
+        }, {
+            "cid": 5, "name": "Category 2"
+        }]
+
+##Blogs [/public/blogs?cid={cid}&require_image={1}&image_format={image_format}]
+A list of the first 10 blog posts, ordered by published date, newest first.
+
+## List of attributes:
+
+- bid - (int) the id of the blog
+- title - (string) the title of the blog
+- body - (string) the body(description) of the blog
+- body_short - (string) 100 chars of the body(description) of the blog
+- image - (array) associative array of the images (format -> picture_url)
+- publish_date - (ISO 8601) the publish date (UTC) of the blog post
+
+
+### Allowed image format
+- span4_16-9 - Dimentions: 300x169 (px)
+- span5_16-9 - Dimentions: 380x214 (px)
+- squared_80 - Dimentions: 80x80 (px)
+- span9_16-9 - Dimentions: 700x394 (px)
+- 9-16       - Dimentions: 1080x1920 (px)
+
+### List blogs [GET]
++ Parameters
+    + cid (optional, number, `1,2,3`) ... Numeric `cid` of the event resources whose events will be returned. You are able to fetch multiple categories.
+    + require_image (optional, number, `1`) ... Numeric `require_image` might have only two possible values (0 or 1). 0 -> FALSE. 1 -> TRUE. If 1, will return only the blogs which contains the image.
+    + image_format (optional, string, `span5_16-9,span4_16-9`) ... String `image_format` might have different multiple format. The default format: span4_16-9.
+
++ Response 200 (application/json)
+
+        [{
+            "bid": 6017, "title": "Blog title1", "body": "The body of the blog", "image" : {"span4_16-9":"http://goo.gl/JLM3TB", "span5_16-9":"http://goo.gl/JLM3TB"}
+        }, {
+            "bid": 6017, "title": "Blog title1", "body": "The body of the blog", "image" : {"span4_16-9":"http://goo.gl/JLM3TB"}
+        }]
+
+# Group Events
+Endpoints that provides information regarding events
+
+##Event categories [/public/events/categories]
+Listing of all event categories.
+
+##List of attributes:
+
+- cid - (int) the id of the category
+- name - (string) the name of the category
+
+### List all categories [GET]
++ Response 200 (application/json)
+
+        [{
+          "cid": 1, "name": "Foredrag"
+        }, {
+          "cid": 2, "name": "Bisættelse"
+        }]
+
+##Event resources [/public/events/resources]
+Listing of all event resources.
+
+##List of attributes:
+
+- rid - (int) the id of the resource
+- name - (string) the name of the resource
+- color - (int) the id of the color (0-9)
+
+### List all resources [GET]
++ Response 200 (application/json)
+
+        [{
+          "rid": 1, "name": "Resource 1", "color": 1
+        }, {
+          "rid": 2, "name": "Resource 2", "color": 5
+        }]
+
+
+##Events [/public/events?rid={rid}&cid={cid}&items_number={items_number}&page_marker={page}&image_format={image_format}&require_image={1}&outdoor={0}]
+A list of upcoming events.
+
+##List of attributes:
+
+- nid - (int) the id of the event
+- title - (string) the title of the event 
+- start_date - (ISO 8601) the start date (UTC) of the event
+- end_date - (ISO 8601) the end date (UTC) of the event
+- all_day - (boolean) true if the event is a all day event and the timestamps should be ignored
+- body - (string) the body description of the event
+- body_short - (string) the short version of the body description of the event (100 chars)
+- location - (string) the location of the event
+- contributor - (string) the contributor of the event
+- price - (string) the price of the event
+- image - (array) associative array of the images (format -> image_url)
+- categories - (array) Array of categories of event [id, title, color(0-9)], see example for structure
+- resources - (array) Array of resources of event [id, title, color(0-9)], see example for structure
+- show_endtime - (int) 0 - Hide endtime / 1 - Show endtime on the page.
+
+### Allowed image format
+- span4_16-9 - Dimentions: 300x169 (px)
+- span5_16-9 - Dimentions: 380x214 (px)
+- squared_80 - Dimentions: 80x80 (px)
+- span9_16-9 - Dimentions: 700x394 (px)
+- 9-16       - Dimentions: 1080x1920 (px)
+
+### List of public events [GET]
+
++ Parameters
+    + rid (optional, string, `1,2,3`) ... String `rid` of the event resources whose events will be returned. `,` sign means that you are able to add multiple ids.
+    + cid (optional, string, `1,2,3`) ... String `cid` of the event categories whose events will be returned. `,` sign means that you are able to add multiple ids.
+    + require_image (optional, number, `1`) ... Numeric `require_image` might have only two possible values (0 or 1). 0 -> FALSE. 1 -> TRUE. If 1, will return only the events which contains the image.
+    + image_format (optional, string, `span5_16-9,span4_16-9`) ... String `image_format` might have different multiple format. The default format: span4_16-9.
+    + items_number (optional, number, `1`) ... Numeric `items_number` representing the number of events to be returned. Default 5.
+    + page_marker (optional, number, `1`) ... Numeric `page_marker` representing the page of the event listing. Default 1st page.
+    + outdoor (optional, number, `0`) ... Numeric 'outdoor'. 1 - List only events selected for the outdoor KirkeScreen, 0 - all upcoming public events(default)
+
++ Response 200 (application/json)
+
+        [{
+          "nid": 32, "title": "Event title 1", "body": "Text description", "start_date": "2004-02-12T15:19:21+00:00", "end_date": "2004-02-13T15:19:21+00:00", "location" : "The location", "contributor": "The contributor", "price": "12DKK", "resources" : [{"id": 32, "title": "Resource title", "color": 0}, {"id": 100, "title": "Resource title 100", "color": 5}], "categories" : [{"id": 23, "title": "Category title", "color": 9}, {"id": 11, "title": "Category title 23", "color": 0}], "image" : {"span4_16-9":"http://goo.gl/JLM3TB", "span5_16-9":"http://goo.gl/JLM3TB"}
+        }, {
+          "nid": 33, "title": "Event title 2", "body": "Text description", "start_date": "2004-07-12T15:19:21+00:00", "end_date": "2004-07-13T18:19:21+00:00", "location" : "The location 2", "contributor": "The contributor 2", "price": "22DKK", "resources" : [{"id": 32, "title": "Resource title", "color": 0}], "categories" : [{"id": 23, "title": "Category title", "color": 9}], "image" : {"span5_16-9":"http://goo.gl/JLM3TB"}
+        }]
+
+##Event [/public/event/{nid}?image_format={image_format}]
+Information regarding a specific event.
+
+##List of attributes:
+
+- title - (string) the title of the event
+- image - (array) associative array of the images (format -> image_url)
+- description - (string) the description of the event
+- body_short - (string) the short version of the description of the event (100 chars)
+- location - (string) the location of the event
+- price - (int) the price for participating in the event
+- contributor - (string) the name of the event's contributor
+- start_date - (ISO 8601) the start date (UTC) of the event
+- end_date - (ISO 8601) the end date (UTC) of the event
+- all_day - (boolean) true if the event is a all day event and the timestamps should be ignored
+- category - (string) the category title of the event
+- sign_up_url - (string) the url to the sign-up formular for the event
+
+### Allowed image format
+- span4_16-9 - Dimentions: 300x169 (px)
+- span5_16-9 - Dimentions: 380x214 (px)
+- squared_80 - Dimentions: 80x80 (px)
+- span9_16-9 - Dimentions: 700x394 (px)
+- 9-16       - Dimentions: 1080x1920 (px)
+
+### Info for a specific event [GET]
+
++ Parameters
+    + nid (required, number, `1`) ... Numeric `nid` of the event.
+    + image_format (optional, string, `span5_16-9,span4_16-9`) ... String `image_format` might have different multiple format. The default format: span4_16-9.
+    
++ Response 200 (application/json)
+
+        [{
+          "id": 1, "image": "http://goo.gl/JLM3TB", "description": "description text of event", "location": "Frederiksberg Allé 71", "price": 50, "contributor": "Jens Jensen","date": "2004-02-12T15:19:21+00:00", "category" : "Andet", "sign_up_url": "http://mykirke.kw01.net/node/166"
+        }]
+
+##Count events [/public/events/count?rid={rid,rid}&cid={cid,cid,cid}&require_image={require_image}]
+The count of events due to parameters
+
+##List of attributes:
+- total - (int) the total number of events
+
+### Count of events [GET]
+
++ Parameters
+    + rid (optional, string, `1,2,3`) ... String `rid` of the event resources whose events will be returned. `,` sign means that you are able to add multiple ids.
+    + cid (optional, string, `1,2,3`) ... String `cid` of the event categories whose events will be returned. `,` sign means that you are able to add multiple ids.
+    + require_image (optional, number, `1`) ... Numeric `require_image` might have only two possible values (0 or 1). 0 -> FALSE. 1 -> TRUE. If 1, will return only the events which contains the image.
+
++ Response 200 (application/json)
+
+        [{
+            "total": 1433
+        }]
+
+
+# Group Newsletters
+Endpoint describing the newsletters.
+
+##Newsletters [/public/newsletters]
+A list of all newsletter categories.
+
+##List of attributes:
+
+- tid - (int) the id of the newletter category
+- title - (string) the title of the newletter category
+
+
+### List of all newsletters to be shown on Screen [GET]
+
++ Response 200 (application/json)
+
+        [{
+          "tid": 42, "title": "Newsletter title 1"
+        }, {
+          "tid": 45, "title": "Newsletter title 2"
+        }]
+
+## Newsletter [/public/newsletter/subscribe]
+Add a person to a newsletter category.
+
+##List of attributes:
+
+ - tid  - (int) the id of the newletter to subscribe to
+ - name - (string) the name of the subscriber
+ - telephone - (int) the danish telephone of the subscriber
+ - email - (string) the email of the subscriber
+
+
+
+### Add to newsletter [POST]
+
++ Request (application/json)
+
+        {
+            "tid": 12,
+            "name": "Jens Jensen"
+            "telephone": 50202020
+            "email": "developers@kirkeweb.dk"
+        }
+
++ Response 200 (application/json)
+
+        {"message": "User subscribed to the newsletter successfully"}
++ Response 409 (application/json)
+
+        {"message": "This email is already subscribed"}
++ Response 400 (application/json)
+
+        {"message": "Invalid email"}
+
+# Group Messages
+Endpoint describing messages
+
+##Messages [/public/messages]
+A list of all public messages
+
+##List of attributes:
+
+- mid - (int) the id of the message
+- title - (string) the title of the message
+- body - (string) the body part of the message
+- image - (string) the url to the image
+- church_name - (string) the name of the church
+- church_banner - (string) the banner of the church
+
+### List of all messages to be shown on Screen [GET]
+
++ Response 200 (application/json)
+
+        [{
+          "mid": 42, "title": "Message title 1", "body": "Body part 1", "image" : "http://goo.gl/JLM3TB", "church_name" : "Test church", "church_banner" : "http://goo.gl/JLM3TB"
+        }, {
+          "mid": 45, "title": "Message title 2", "body": "Body part 2", "image" : "http://goo.gl/JLM3TB", "church_name" : "Test church", "church_banner" : "http://goo.gl/JLM3TB"
+        }]
